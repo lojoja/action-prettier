@@ -44,4 +44,4 @@ jobs:
 
 ## License
 
-action-setup-node-env is released under the [MIT License](./LICENSE)
+action-prettier is released under the [MIT License](./LICENSE)
