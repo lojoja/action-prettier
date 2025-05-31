@@ -1,0 +1,41 @@
+name: Prettier
+description: >-
+  Check file formatting with Prettier.
+  Projects with a package.json file must specify prettier as a dependency.
+  Projects without a package.json file should set the "install" input to "true" otherwise prettier will not be available.
+
+inputs:
+  cache:
+    description: Whether to cache package dependencies.
+    required: false
+    default: "true"
+  install:
+    description: Whether to install prettier globally. Set to "true" if the repository does not have a package.json file.
+    required: false
+    default: "false"
+  node_version:
+    description: The node version to use in version spec syntax.
+    required: false
+    default: "22"
+  working_directory:
+    description: The directory to execute commands in.
+    required: false
+    default: "."
+
+outputs: {}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup node environment
+      uses: lojoja/action-setup-node-env@main
+      with:
+        cache: ${{ inputs.cache }}
+        global_dependencies: ${{ inputs.install == 'true' && 'prettier@"^3.5.0"' || '' }}
+        node_version: ${{ inputs.node_version }}
+        working_directory: ${{ inputs.working_directory }}
+
+    - name: Run prettier
+      run: ${{ inputs.install == 'false' && 'pnpm ' || '' }}prettier --check .
+      shell: bash
+      working-directory: ${{ inputs.working_directory }}
