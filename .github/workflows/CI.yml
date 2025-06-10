@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.dedupe.outputs.should_skip }}
+      named: ${{ steps.dedupe.outputs.named }}
+    steps:
+      - name: Dedupe
+        id: dedupe
+        uses: lojoja/action-dedupe@main
+        with:
+          github_token: ${{ github.token }}
+          paths: |
+            - .github/workflows/CI.yml
+          paths_named: |
+            prettier:
+              paths_ignore:
+                - .actrc
+                - LICENSE
+                - pnpm-lock.yaml
+            tests:
+              paths:
+                - .github/workflows/tests.yml
+                - action.yml
+                - tests/**
+
+  prettier:
+    name: Prettier
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.should_skip == 'false' || ! fromJSON(needs.changes.outputs.named).prettier.should_skip
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Run prettier
+        uses: ./
+        with:
+          node_version: ${{ env.NODE_VERSION }}
+
+  test-prettier-project:
+    name: Test prettier (project)
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.should_skip == 'false' || ! fromJSON(needs.changes.outputs.named).tests.should_skip
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Run prettier action
+        uses: ./
+        with:
+          node_version: ${{ env.NODE_VERSION }}
+          working_directory: tests
+
+  ci-result:
+    name: CI Result
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - prettier
+      - test-prettier-project
+    steps:
+      - name: CI failed
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
+      - name: CI passed
+        run: exit 0
