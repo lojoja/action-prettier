@@ -10,7 +10,7 @@ This repository is not meant to be referenced in third-party workflows; please f
 | ----------------- | -------------------------------------------------------------------------------------------------------- | ------- |
 | cache             | Whether to cache dependencies.                                                                           | "true"  |
 | install           | Whether to install prettier globally. Set to "true" if the repository does not have a package.json file. | "false" |
-| node_version      | The node version to use in version spec syntax.                                                          | "22"    |
+| node_version      | The node version to use in version spec syntax.                                                          | "24"    |
 | working_directory | The working directory for the action.                                                                    | "."     |
 
 ## Examples
@@ -25,7 +25,7 @@ jobs:
       - uses: lojoja/action-prettier@main
         with:
           cache: "true"
-          node_version: "22"
+          node_version: "24"
 ```
 
 ### Without package.json
@@ -39,7 +39,7 @@ jobs:
         with:
           cache: "true"
           install: "true"
-          node_version: "22"
+          node_version: "24"
 ```
 
 ## License

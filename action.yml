@@ -16,7 +16,7 @@ inputs:
   node_version:
     description: The node version to use in version spec syntax.
     required: false
-    default: "22"
+    default: "24"
   working_directory:
     description: The directory to execute commands in.
     required: false
